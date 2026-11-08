@@ -3,19 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>.cute06 — 3D Engine · Unreal Engine 5 · Blender · C++/C# Portfolio</title>
+  <title>.cute06 — 3D Engine · Unreal Engine 5 · Blender · C++/C#</title>
   <meta name="description" content="C#, C++, DirectX 11 자체 3D 엔진 개발, 언리얼 엔진 5 프로젝트, 블렌더 3D 모델링, Lua 스크립팅 및 대규모 3D 최적화 전문 포트폴리오 (.cute06)" />
+  <link rel="icon" type="image/x-icon" href="assets/icon.ico" />
+  <link rel="shortcut icon" type="image/x-icon" href="assets/icon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
   <style>
     /* ==========================================================================
-       1. 모노톤 디자인 시스템 & 리셋
+       1. 하이엔드 모노톤 엔지니어링 디자인 시스템 & 리셋
        색상: Pure White (#FFFFFF), Pure Black (#000000),
             연한 회색 (#F9F9F9), 진한 회색 (#333333)
-       윤곽선: 날카로운 테두리 대신 부드럽게 퍼지는 그림자(Soft Diffused Shadow)
+       윤곽선: 미세한 1px 헤어라인 + 다층 소프트 앰비언트 섀도우(Multi-Layer Shadow)
        ========================================================================== */
+    :root {
+      --bg-white: #FFFFFF;
+      --bg-gray: #F9F9F9;
+      --text-black: #000000;
+      --text-dark: #333333;
+      --border-hairline: rgba(0, 0, 0, 0.065);
+      --border-hover: rgba(0, 0, 0, 0.16);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03), 0 8px 24px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.035), 0 18px 44px rgba(0, 0, 0, 0.065);
+      --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.06), 0 32px 72px rgba(0, 0, 0, 0.12);
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     *,
     *::before,
     *::after {
@@ -30,11 +45,12 @@
     }
 
     body {
-      background-color: #FFFFFF;
-      color: #000000;
+      background-color: var(--bg-white);
+      color: var(--text-black);
       font-family: "Pretendard Variable", "Pretendard", "Inter", Helvetica, Arial, sans-serif;
       line-height: 1.65;
       letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       overflow-x: hidden;
@@ -71,18 +87,18 @@
 
     .container {
       width: 100%;
-      max-width: 1240px;
+      max-width: 1260px;
       margin: 0 auto;
       padding: 0 40px;
     }
 
     /* ==========================================================================
-       2. 애니메이션 유틸리티 (스크롤 등장 & 부드러운 인터랙션)
+       2. 애니메이션 유틸리티
        ========================================================================== */
     @keyframes heroFadeUp {
       from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(28px);
       }
       to {
         opacity: 1;
@@ -96,17 +112,26 @@
         opacity: 1;
       }
       50% {
-        transform: scale(1.45);
-        opacity: 0.45;
+        transform: scale(1.5);
+        opacity: 0.4;
+      }
+    }
+
+    @keyframes reviewMarqueeRTL {
+      0% {
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        transform: translate3d(-50%, 0, 0);
       }
     }
 
     .reveal {
       opacity: 0;
-      transform: translateY(34px) scale(0.985);
+      transform: translateY(32px) scale(0.988);
       transition:
-        opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
-        transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+        opacity 0.85s var(--ease-out-expo),
+        transform 0.85s var(--ease-out-expo);
       transition-delay: var(--delay, 0s);
     }
 
@@ -116,23 +141,24 @@
     }
 
     /* ==========================================================================
-       3. 네비게이션 바 (블러 글래스 & 은은한 그림자)
+       3. 네비게이션 바 (플래그십 글래스모피즘)
        ========================================================================== */
     .navbar {
       position: sticky;
       top: 0;
       z-index: 200;
-      background-color: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.045);
+      background-color: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border-hairline);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
     }
 
     .navbar-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 80px;
+      height: 78px;
     }
 
     .logo-group {
@@ -142,9 +168,10 @@
     }
 
     .logo {
+      font-family: "Inter", sans-serif;
       font-size: 1.35rem;
       font-weight: 800;
-      letter-spacing: -0.04em;
+      letter-spacing: -0.045em;
       color: #000000;
     }
 
@@ -152,13 +179,13 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.76rem;
+      font-size: 0.75rem;
       font-weight: 600;
       color: #333333;
       background-color: #F9F9F9;
       padding: 6px 14px;
       border-radius: 999px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-hairline);
     }
 
     .status-dot {
@@ -176,7 +203,7 @@
     }
 
     .nav-links a {
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       font-weight: 500;
       color: #333333;
       position: relative;
@@ -194,7 +221,7 @@
       background-color: #000000;
       transform: scaleX(0);
       transform-origin: right;
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.35s var(--ease-out-expo);
     }
 
     .nav-links a:hover {
@@ -213,8 +240,8 @@
       color: #FFFFFF !important;
       font-size: 0.85rem !important;
       font-weight: 600 !important;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-      transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+      transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s ease !important;
     }
 
     .nav-cta::after {
@@ -223,60 +250,77 @@
 
     .nav-cta:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.24);
     }
 
     /* ==========================================================================
-       4. 히어로 섹션
+       4. 히어로 섹션 (정밀 그리드 배경 & 엔터프라이즈 타이포그래피)
        ========================================================================== */
     .hero {
-      padding: 135px 0 115px;
+      position: relative;
+      padding: 130px 0 96px;
       text-align: center;
       background-color: #FFFFFF;
+      background-image:
+        linear-gradient(to right, rgba(0, 0, 0, 0.028) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.028) 1px, transparent 1px);
+      background-size: 56px 56px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 40%, transparent 20%, #FFFFFF 82%);
+      pointer-events: none;
     }
 
     .hero-inner {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      max-width: 920px;
+      max-width: 960px;
       margin: 0 auto;
     }
 
     .hero-kicker {
-      font-size: 0.84rem;
+      font-family: "JetBrains Mono", "Inter", monospace;
+      font-size: 0.78rem;
       font-weight: 600;
-      letter-spacing: 0.04em;
-      color: #333333;
-      background-color: #F9F9F9;
+      letter-spacing: 0.06em;
+      color: #000000;
+      background-color: #FFFFFF;
       padding: 8px 22px;
       border-radius: 999px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--shadow-sm);
       margin-bottom: 30px;
-      animation: heroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: heroFadeUp 0.8s var(--ease-out-expo) forwards;
     }
 
     .hero-title {
-      font-size: clamp(2.35rem, 5.4vw, 4.35rem);
+      font-size: clamp(2.4rem, 5.4vw, 4.4rem);
       font-weight: 800;
-      line-height: 1.15;
-      letter-spacing: -0.04em;
+      line-height: 1.13;
+      letter-spacing: -0.042em;
       color: #000000;
       margin-bottom: 26px;
       word-break: keep-all;
       opacity: 0;
-      animation: heroFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+      animation: heroFadeUp 0.9s var(--ease-out-expo) 0.1s forwards;
     }
 
     .hero-subtitle {
-      font-size: clamp(1rem, 1.35vw, 1.18rem);
+      font-size: clamp(1rem, 1.35vw, 1.16rem);
       font-weight: 400;
       color: #333333;
-      max-width: 700px;
+      max-width: 720px;
       margin-bottom: 36px;
       word-break: keep-all;
       opacity: 0;
-      animation: heroFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+      animation: heroFadeUp 0.9s var(--ease-out-expo) 0.2s forwards;
     }
 
     .hero-subtitle strong {
@@ -289,26 +333,28 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 46px;
+      margin-bottom: 44px;
       opacity: 0;
-      animation: heroFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.28s forwards;
+      animation: heroFadeUp 0.9s var(--ease-out-expo) 0.28s forwards;
     }
 
     .skill-badge {
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       font-weight: 600;
       padding: 9px 18px;
       border-radius: 999px;
-      background-color: #F9F9F9;
+      background-color: #FFFFFF;
       color: #333333;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
-      transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.3s var(--ease-out-expo), background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 
     .skill-badge:hover {
       transform: translateY(-3px);
       background-color: #000000;
       color: #FFFFFF;
+      border-color: #000000;
     }
 
     .hero-actions {
@@ -317,7 +363,7 @@
       justify-content: center;
       gap: 16px;
       opacity: 0;
-      animation: heroFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.36s forwards;
+      animation: heroFadeUp 0.9s var(--ease-out-expo) 0.36s forwards;
     }
 
     .btn-solid {
@@ -333,8 +379,8 @@
       background-color: #000000;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
       transition:
-        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.35s var(--ease-out-expo),
+        box-shadow 0.35s var(--ease-out-expo),
         opacity 0.3s ease;
     }
 
@@ -354,12 +400,13 @@
       font-weight: 600;
       color: #000000;
       background-color: #FFFFFF;
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      box-shadow: var(--shadow-sm);
       transition:
-        background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        background-color 0.35s var(--ease-out-expo),
+        color 0.35s var(--ease-out-expo),
+        transform 0.35s var(--ease-out-expo),
+        box-shadow 0.35s var(--ease-out-expo);
     }
 
     .btn-outline:hover {
@@ -369,43 +416,266 @@
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
     }
 
-    /* 신뢰 지표 스트립 */
+    /* 핵심 신뢰 지표 스트립 */
     .trust-strip {
-      margin-top: 76px;
+      margin-top: 72px;
       width: 100%;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 20px;
       opacity: 0;
-      animation: heroFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.44s forwards;
+      animation: heroFadeUp 0.9s var(--ease-out-expo) 0.44s forwards;
     }
 
     .trust-item {
-      background-color: #F9F9F9;
-      padding: 26px 20px;
-      border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-      text-align: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background-color: #FFFFFF;
+      padding: 28px 22px;
+      border-radius: 22px;
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--shadow-md);
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.35s var(--ease-out-expo), box-shadow 0.35s ease, border-color 0.35s ease;
     }
 
     .trust-item:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
+      transform: translateY(-5px);
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-lg);
     }
 
     .trust-num {
-      font-size: 1.65rem;
+      font-size: 1.45rem;
       font-weight: 800;
       letter-spacing: -0.03em;
       color: #000000;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
 
     .trust-label {
-      font-size: 0.84rem;
-      font-weight: 500;
+      font-size: 0.85rem;
+      font-weight: 400;
+      line-height: 1.5;
       color: #333333;
+      word-break: keep-all;
+    }
+
+    /* ==========================================================================
+       4-B. 실시간 구매자 후기 마키 섹션 (우측 -> 좌측 슬로우 스크롤, 8개 댓글)
+       ========================================================================== */
+    .reviews-ticker-section {
+      padding: 44px 0 88px;
+      background-color: #FFFFFF;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border-hairline);
+    }
+
+    .reviews-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .reviews-header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .reviews-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background-color: #000000;
+      color: #FFFFFF;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .reviews-summary-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #000000;
+    }
+
+    .reviews-summary-score {
+      font-family: "Inter", sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #333333;
+      background-color: #F9F9F9;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-hairline);
+    }
+
+    /* 좌우 페이드 마스크 처리된 마키 뷰포트 (마우스/터치 드래그 지원) */
+    .reviews-marquee-viewport {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      padding: 12px 0;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      mask-image: linear-gradient(to right, transparent 0%, #000000 7%, #000000 93%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, #000000 7%, #000000 93%, transparent 100%);
+    }
+
+    .reviews-marquee-viewport.is-dragging {
+      cursor: grabbing;
+    }
+
+    .reviews-marquee-track {
+      display: flex;
+      width: max-content;
+      gap: 22px;
+      will-change: transform;
+    }
+
+    /* 실제 구매 후기 댓글 카드 디자인 */
+    .review-comment-card {
+      width: 390px;
+      flex-shrink: 0;
+      background-color: #FFFFFF;
+      border-radius: 20px;
+      padding: 24px 26px;
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      transition: transform 0.35s var(--ease-out-expo), box-shadow 0.35s ease, border-color 0.35s ease;
+    }
+
+    .review-comment-card:hover {
+      transform: translateY(-4px);
+      border-color: #000000;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .review-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .reviewer-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .reviewer-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background-color: #F9F9F9;
+      border: 1px solid var(--border-hairline);
+      display: grid;
+      place-items: center;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #000000;
+    }
+
+    .reviewer-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .reviewer-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .reviewer-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #000000;
+    }
+
+    .verified-buyer-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background-color: #F9F9F9;
+      color: #333333;
+      border: 1px solid var(--border-hairline);
+    }
+
+    .review-date {
+      font-size: 0.73rem;
+      color: #333333;
+    }
+
+    .review-rating-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background-color: #F9F9F9;
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-hairline);
+    }
+
+    .review-stars {
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      color: #000000;
+    }
+
+    .review-score-num {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #000000;
+    }
+
+    .review-body {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #000000;
+      word-break: keep-all;
+    }
+
+    .review-purchase-footer {
+      padding-top: 12px;
+      border-top: 1px solid var(--border-hairline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.78rem;
+    }
+
+    .purchase-item-name {
+      font-weight: 600;
+      color: #333333;
+    }
+
+    .purchase-price-tag {
+      font-family: "JetBrains Mono", "Pretendard Variable", monospace;
+      font-weight: 700;
+      color: #000000;
+      background-color: #F9F9F9;
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-hairline);
     }
 
     /* ==========================================================================
@@ -417,9 +687,8 @@
 
     .section-gray {
       background-color: #F9F9F9;
-      box-shadow:
-        inset 0 12px 24px -12px rgba(0, 0, 0, 0.03),
-        inset 0 -12px 24px -12px rgba(0, 0, 0, 0.03);
+      border-top: 1px solid var(--border-hairline);
+      border-bottom: 1px solid var(--border-hairline);
     }
 
     .section-header {
@@ -439,9 +708,10 @@
     }
 
     .section-label {
-      font-size: 0.78rem;
+      font-family: "JetBrains Mono", "Inter", monospace;
+      font-size: 0.76rem;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: #333333;
     }
@@ -465,15 +735,13 @@
     /* ==========================================================================
        6. 전체 작업물 쇼케이스 (10장 전체 수록 + 카테고리 필터 + 토폴로지 비교)
        ========================================================================== */
-    /* F/A-18F 토폴로지 & 텍스처 인터랙티브 뷰어 */
     .topology-showcase {
       background-color: #FFFFFF;
       border-radius: 28px;
       padding: 36px;
       margin-bottom: 52px;
-      box-shadow:
-        0 18px 50px rgba(0, 0, 0, 0.07),
-        0 1px 4px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--shadow-md);
     }
 
     .topology-header {
@@ -501,10 +769,11 @@
     .topology-tabs {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       background-color: #F9F9F9;
       padding: 6px;
       border-radius: 999px;
+      border: 1px solid var(--border-hairline);
     }
 
     .topo-tab {
@@ -535,7 +804,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.6s var(--ease-out-expo);
     }
 
     .topology-stage:hover img {
@@ -547,7 +816,7 @@
       left: 20px;
       right: 20px;
       bottom: 20px;
-      background-color: rgba(255, 255, 255, 0.92);
+      background-color: rgba(255, 255, 255, 0.94);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       padding: 14px 22px;
@@ -577,6 +846,7 @@
       background-color: #F9F9F9;
       padding: 8px 16px;
       border-radius: 999px;
+      border: 1px solid var(--border-hairline);
       white-space: nowrap;
     }
 
@@ -594,7 +864,8 @@
       font-weight: 600;
       background-color: #FFFFFF;
       color: #333333;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--shadow-sm);
       transition: all 0.3s ease;
     }
 
@@ -606,6 +877,7 @@
     .filter-btn.active {
       background-color: #000000;
       color: #FFFFFF;
+      border-color: #000000;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
     }
 
@@ -620,16 +892,16 @@
       background-color: #FFFFFF;
       border-radius: 24px;
       padding: 16px 16px 24px;
-      box-shadow:
-        0 12px 36px rgba(0, 0, 0, 0.06),
-        0 1px 4px rgba(0, 0, 0, 0.03);
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--shadow-md);
       cursor: zoom-in;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       transition:
-        transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.45s var(--ease-out-expo),
+        box-shadow 0.45s var(--ease-out-expo),
+        border-color 0.35s ease,
         opacity 0.35s ease;
     }
 
@@ -643,7 +915,8 @@
 
     .work-item:hover {
       transform: translateY(-8px);
-      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.14);
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-lg);
     }
 
     .work-image-wrap {
@@ -663,7 +936,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.65s var(--ease-out-expo);
     }
 
     .work-item:hover .work-image-wrap img {
@@ -674,7 +947,7 @@
       position: absolute;
       right: 14px;
       bottom: 14px;
-      background-color: rgba(0, 0, 0, 0.78);
+      background-color: rgba(0, 0, 0, 0.8);
       color: #FFFFFF;
       font-size: 0.75rem;
       font-weight: 600;
@@ -712,12 +985,14 @@
     }
 
     .work-tag {
-      font-size: 0.74rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
       font-weight: 600;
       color: #333333;
       background-color: #F9F9F9;
       padding: 4px 10px;
       border-radius: 999px;
+      border: 1px solid var(--border-hairline);
       white-space: nowrap;
     }
 
@@ -741,23 +1016,25 @@
       background-color: #FFFFFF;
       border-radius: 24px;
       padding: 38px 32px;
-      box-shadow:
-        0 12px 36px rgba(0, 0, 0, 0.055),
-        0 1px 3px rgba(0, 0, 0, 0.03);
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--shadow-md);
       transition:
-        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        transform 0.35s var(--ease-out-expo),
+        box-shadow 0.35s var(--ease-out-expo),
+        border-color 0.35s ease;
     }
 
     .spec-pillar-card:hover {
       transform: translateY(-6px);
-      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.11);
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-lg);
     }
 
     .spec-pillar-kicker {
-      font-size: 0.75rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.74rem;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       color: #333333;
       margin-bottom: 10px;
     }
@@ -768,7 +1045,7 @@
       color: #000000;
       margin-bottom: 22px;
       padding-bottom: 16px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      border-bottom: 1px solid var(--border-hairline);
     }
 
     .spec-check-list {
@@ -865,17 +1142,16 @@
       background-color: #FFFFFF;
       border-radius: 24px;
       padding: 44px 36px;
+      border: 1px solid var(--border-hairline);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow:
-        0 12px 36px rgba(0, 0, 0, 0.06),
-        0 1px 3px rgba(0, 0, 0, 0.03);
+      box-shadow: var(--shadow-md);
       transition:
-        background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-        color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-        transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        background-color 0.4s var(--ease-out-expo),
+        color 0.4s var(--ease-out-expo),
+        transform 0.4s var(--ease-out-expo),
+        box-shadow 0.4s var(--ease-out-expo);
     }
 
     .card:hover {
@@ -886,7 +1162,8 @@
     }
 
     .card-number {
-      font-size: 0.8rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.78rem;
       font-weight: 700;
       letter-spacing: 0.08em;
       color: #333333;
@@ -920,7 +1197,7 @@
 
     .card-meta {
       padding-top: 20px;
-      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      border-top: 1px solid var(--border-hairline);
       font-size: 0.88rem;
       font-weight: 600;
       display: flex;
@@ -933,7 +1210,7 @@
     }
 
     /* ==========================================================================
-       9. 공식 제작 단가 & 원클릭 빠른 견적/문의 생성기 (구매 전환 극대화)
+       9. 공식 제작 단가 & 원클릭 빠른 견적/문의 생성기
        ========================================================================== */
     .pricing-list {
       display: flex;
@@ -950,13 +1227,12 @@
       padding: 32px 40px;
       background-color: #FFFFFF;
       border-radius: 22px;
+      border: 1px solid var(--border-hairline);
       cursor: pointer;
-      box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.05),
-        0 1px 3px rgba(0, 0, 0, 0.03);
+      box-shadow: var(--shadow-md);
       transition:
-        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.35s var(--ease-out-expo),
+        box-shadow 0.35s var(--ease-out-expo),
         background-color 0.35s ease,
         color 0.35s ease;
     }
@@ -965,7 +1241,7 @@
       transform: translateX(8px) translateY(-2px);
       background-color: #000000;
       color: #FFFFFF;
-      box-shadow: 0 22px 48px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 22px 48px rgba(0, 0, 0, 0.16);
     }
 
     .pricing-name {
@@ -1007,6 +1283,7 @@
       border-radius: 999px;
       background-color: #F9F9F9;
       color: #000000;
+      border: 1px solid var(--border-hairline);
       white-space: nowrap;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
@@ -1021,9 +1298,8 @@
       background-color: #FFFFFF;
       border-radius: 28px;
       padding: 44px;
-      box-shadow:
-        0 18px 50px rgba(0, 0, 0, 0.07),
-        0 1px 4px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--shadow-md);
       display: grid;
       grid-template-columns: 1.1fr 0.9fr;
       gap: 40px;
@@ -1063,20 +1339,22 @@
       background-color: #F9F9F9;
       color: #000000;
       font-size: 0.94rem;
-      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
-      transition: box-shadow 0.25s ease, background-color 0.25s ease;
+      border: 1px solid var(--border-hairline);
+      transition: box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
     }
 
     .form-control:focus {
       outline: none;
       background-color: #FFFFFF;
-      box-shadow: inset 0 0 0 1.5px #000000, 0 6px 20px rgba(0, 0, 0, 0.06);
+      border-color: #000000;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
     }
 
     .quote-preview-panel {
       background-color: #F9F9F9;
       border-radius: 22px;
       padding: 32px;
+      border: 1px solid var(--border-hairline);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -1084,7 +1362,8 @@
     }
 
     .quote-preview-label {
-      font-size: 0.76rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.74rem;
       font-weight: 700;
       letter-spacing: 0.08em;
       color: #333333;
@@ -1098,7 +1377,8 @@
       background-color: #FFFFFF;
       padding: 20px;
       border-radius: 14px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--shadow-sm);
     }
 
     /* ==========================================================================
@@ -1115,7 +1395,8 @@
       padding: 72px 48px;
       border-radius: 32px;
       background-color: #F9F9F9;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--border-hairline);
+      box-shadow: var(--shadow-md);
     }
 
     .contact-title {
@@ -1145,8 +1426,8 @@
       background-color: #000000;
       box-shadow: 0 14px 36px rgba(0, 0, 0, 0.18);
       transition:
-        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        transform 0.35s var(--ease-out-expo),
+        box-shadow 0.35s var(--ease-out-expo);
     }
 
     .discord-id-box:hover {
@@ -1157,7 +1438,7 @@
     .footer {
       padding: 52px 0;
       background-color: #FFFFFF;
-      box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.03);
+      border-top: 1px solid var(--border-hairline);
     }
 
     .footer-inner {
@@ -1199,7 +1480,7 @@
       padding: 28px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.35s var(--ease-out-expo);
     }
 
     .lightbox.is-open {
@@ -1216,7 +1497,7 @@
       overflow: hidden;
       box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5);
       transform: scale(0.92) translateY(20px);
-      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.45s var(--ease-out-expo);
     }
 
     .lightbox.is-open .lightbox-content {
@@ -1321,7 +1602,7 @@
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
       transform: translateY(120%);
       opacity: 0;
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+      transition: transform 0.35s var(--ease-out-expo), opacity 0.35s ease;
     }
 
     .toast.show {
@@ -1384,6 +1665,10 @@
         grid-column: span 1;
       }
 
+      .review-comment-card {
+        width: 320px;
+      }
+
       .topology-showcase,
       .quick-quote-box {
         padding: 24px;
@@ -1432,7 +1717,7 @@
         </span>
       </div>
       <nav class="nav-links" aria-label="주요 메뉴">
-        <a href="#works">포트폴리오 (10)</a>
+        <a href="#works">포트폴리오</a>
         <a href="#specs">최적화 &amp; 커리어 스펙</a>
         <a href="#capabilities">전문 분야</a>
         <a href="#pricing">제작 단가 &amp; 견적</a>
@@ -1492,9 +1777,242 @@
             <div class="trust-label">다수 오브젝트·오픈월드 프레임 방어 설계</div>
           </div>
           <div class="trust-item">
-            <div class="trust-num">정보처리기능사</div>
-            <div class="trust-label">국가기술자격 및 CS·네트워크 기반 엔지니어링</div>
+            <div class="trust-num">C++,C# 엔진</div>
+            <div class="trust-label">언리얼 엔진과 비슷한 성능부터, 원하는 쉐이더를 사용해 소규모 게임까지</div>
           </div>
+        </div>
+      </div>
+    </section>
+    <section class="reviews-ticker-section" aria-label="실제 구매자 후기 댓글">
+      <div class="container">
+        <div class="reviews-header-bar">
+          <div class="reviews-header-left">
+            <span class="reviews-badge">VERIFIED REVIEWS</span>
+            <h2 class="reviews-summary-title">실제 의뢰인 구매 후기</h2>
+          </div>
+          <div class="reviews-summary-score">
+            구매 전, 충분히 확인하고 구매해주세요!
+          </div>
+        </div>
+      </div>
+
+      <div class="reviews-marquee-viewport" id="reviewsViewport">
+        <div class="reviews-marquee-track" id="reviewsTrack">
+          <!-- [후기 1] -->
+          <article class="review-comment-card">
+            <div class="review-top">
+              <div class="reviewer-profile">
+                <div class="reviewer-avatar">김</div>
+                <div class="reviewer-meta">
+                  <div class="reviewer-name-row">
+                    <span class="reviewer-name">김*현 님</span>
+                    <span class="verified-buyer-pill">구매 인증</span>
+                  </div>
+                  <span class="review-date">실제 구매자 후기</span>
+                </div>
+              </div>
+              <div class="review-rating-box">
+                <span class="review-stars">★★★★★</span>
+                <span class="review-score-num">5.0</span>
+              </div>
+            </div>
+            <p class="review-body">
+              언리얼 엔진 5 대규모 맵 프레임 드랍이 심해서 의뢰드렸는데, C++이랑 블루프린트 구조 깔끔하게 분리해주시고 최적화까지 완벽하게 잡아주셨습니다. 수정하기도 너무 편해졌어요!
+            </p>
+            <div class="review-purchase-footer">
+              <span class="purchase-item-name">언리얼 엔진 5 프로젝트</span>
+              <span class="purchase-price-tag">구매가 350만원</span>
+            </div>
+          </article>
+
+          <!-- [후기 2] -->
+          <article class="review-comment-card">
+            <div class="review-top">
+              <div class="reviewer-profile">
+                <div class="reviewer-avatar">이</div>
+                <div class="reviewer-meta">
+                  <div class="reviewer-name-row">
+                    <span class="reviewer-name">이*우 님</span>
+                    <span class="verified-buyer-pill">구매 인증</span>
+                  </div>
+                  <span class="review-date">실제 구매자 후기</span>
+                </div>
+              </div>
+              <div class="review-rating-box">
+                <span class="review-stars">★★★★★</span>
+                <span class="review-score-num">5.0</span>
+              </div>
+            </div>
+            <p class="review-body">
+              D3D11 기반 자체 엔진이랑 PBR 셰이더 파이프라인 구축 맡겼습니다. 코드 가독성이 정말 좋고 원리부터 상세하게 주석 달아주셔서 바로 프로젝트에 적용했습니다. 솔까 여기 만큼 좋은데 없습니다 ㅋㅋㅋㅋ
+            </p>
+            <div class="review-purchase-footer">
+              <span class="purchase-item-name">D3D11로 엔진 제작</span>
+              <span class="purchase-price-tag">구매가 280만원</span>
+            </div>
+          </article>
+
+          <!-- [후기 3] -->
+          <article class="review-comment-card">
+            <div class="review-top">
+              <div class="reviewer-profile">
+                <div class="reviewer-avatar">w</div>
+                <div class="reviewer-meta">
+                  <div class="reviewer-name-row">
+                    <span class="reviewer-name">woAp***dl#3122 님</span>
+                    <span class="verified-buyer-pill">구매 인증</span>
+                  </div>
+                  <span class="review-date">실제 구매자 후기</span>
+                </div>
+              </div>
+              <div class="review-rating-box">
+                <span class="review-stars">★★★★★</span>
+                <span class="review-score-num">5.0</span>
+              </div>
+            </div>
+            <p class="review-body">
+              블렌더 소나타 경찰차 모델링 의뢰했는데 와이어프레임 토폴로지가 진짜 깔끔합니다. 라이선스까지 구매해서 로블록스 스튜디오 차량으로 판매까지 하니 1석2조네요 ㅎㅎ
+            </p>
+            <div class="review-purchase-footer">
+              <span class="purchase-item-name">블렌더 3D 모델링</span>
+              <span class="purchase-price-tag">구매가 40만원 + 라이선스 비용 180만원</span>
+            </div>
+          </article>
+
+          <!-- [후기 4] -->
+          <article class="review-comment-card">
+            <div class="review-top">
+              <div class="reviewer-profile">
+                <div class="reviewer-avatar">최</div>
+                <div class="reviewer-meta">
+                  <div class="reviewer-name-row">
+                    <span class="reviewer-name">최*민 님</span>
+                    <span class="verified-buyer-pill">구매 인증</span>
+                  </div>
+                  <span class="review-date">실제 구매자 후기</span>
+                </div>
+              </div>
+              <div class="review-rating-box">
+                <span class="review-stars">★★★★★</span>
+                <span class="review-score-num">5.0</span>
+              </div>
+            </div>
+            <p class="review-body">
+              TCP/UDP 소켓 통신 들어간 C++ 클라이언트 제작 요청드렸는데 응답도 쥰네 빠르시고 예외 처리까지 꼼꼼하게 챙겨주셨습니다! 정말 감사합니당~!
+            </p>
+            <div class="review-purchase-footer">
+              <span class="purchase-item-name">C#, C++ 앱 개발</span>
+              <span class="purchase-price-tag">구매가 95만원</span>
+            </div>
+          </article>
+
+          <!-- [후기 5] -->
+          <article class="review-comment-card">
+            <div class="review-top">
+              <div class="reviewer-profile">
+                <div class="reviewer-avatar">v</div>
+                <div class="reviewer-meta">
+                  <div class="reviewer-name-row">
+                    <span class="reviewer-name">voidli****w 님</span>
+                    <span class="verified-buyer-pill">구매 인증</span>
+                  </div>
+                  <span class="review-date">실제 구매자 후기</span>
+                </div>
+              </div>
+              <div class="review-rating-box">
+                <span class="review-stars">★★★★★</span>
+                <span class="review-score-num">5.0</span>
+              </div>
+            </div>
+            <p class="review-body">
+              모델링 외주 따로, 언리얼 개발자 따로 구하다가 지쳐서 한 분께 통째로 맡겼는데 결과물 퀄리티가 차원이 다릅니다 ㄷㄷ;; 솔직히 가격땜에 부담이 있긴 했지만 2달안에 제작하신거 보면 가성비가 훨씬 좋다고 생각드네요 ㅎㅎ
+            </p>
+            <div class="review-purchase-footer">
+              <span class="purchase-item-name">언리얼 엔진 프로젝트</span>
+              <span class="purchase-price-tag">구매가 520만원</span>
+            </div>
+          </article>
+
+          <!-- [후기 6] -->
+          <article class="review-comment-card">
+            <div class="review-top">
+              <div class="reviewer-profile">
+                <div class="reviewer-avatar">강</div>
+                <div class="reviewer-meta">
+                  <div class="reviewer-name-row">
+                    <span class="reviewer-name">강*진 님</span>
+                    <span class="verified-buyer-pill">구매 인증</span>
+                  </div>
+                  <span class="review-date">실제 구매자 후기</span>
+                </div>
+              </div>
+              <div class="review-rating-box">
+                <span class="review-stars">★★★★★</span>
+                <span class="review-score-num">5.0</span>
+              </div>
+            </div>
+            <p class="review-body">
+              소품 프롭 모델링이랑 URP 씬 세팅 의뢰했습니다~ 단가도 합리적이고 피드백 반영 속도가 정말 빨라서 일정보다 일찍 마무리할 수 있었네여! 감사합니다!
+            </p>
+            <div class="review-purchase-footer">
+              <span class="purchase-item-name">모델링 (블렌더 3D)</span>
+              <span class="purchase-price-tag">구매가 (비공개 요청)</span>
+            </div>
+          </article>
+
+          <!-- [후기 7] -->
+          <article class="review-comment-card">
+            <div class="review-top">
+              <div class="reviewer-profile">
+                <div class="reviewer-avatar">윤</div>
+                <div class="reviewer-meta">
+                  <div class="reviewer-name-row">
+                    <span class="reviewer-name">윤*혁 님</span>
+                    <span class="verified-buyer-pill">구매 인증</span>
+                  </div>
+                  <span class="review-date">실제 구매자 후기</span>
+                </div>
+              </div>
+              <div class="review-rating-box">
+                <span class="review-stars">★★★★★</span>
+                <span class="review-score-num">5.0</span>
+              </div>
+            </div>
+            <p class="review-body">
+              C# 윈도우 프로그램이랑 Lua 스크립트 연동 툴 의뢰드렸습니다! 1달안에 제작 가능할까 조마조마 했는데 3주만에 끝내주시고 객체지향 구조가 탄탄해서 제가 기능을 추가하기도 너무 좋게 짜주셨네여!! 강력 추천!!!!
+            </p>
+            <div class="review-purchase-footer">
+              <span class="purchase-item-name">C#, C++ 앱 개발</span>
+              <span class="purchase-price-tag">구매가 60만원</span>
+            </div>
+          </article>
+
+          <!-- [후기 8] -->
+          <article class="review-comment-card">
+            <div class="review-top">
+              <div class="reviewer-profile">
+                <div class="reviewer-avatar">u</div>
+                <div class="reviewer-meta">
+                  <div class="reviewer-name-row">
+                    <span class="reviewer-name">usagisa****rld 님</span>
+                    <span class="verified-buyer-pill">구매 인증</span>
+                  </div>
+                  <span class="review-date">실제 구매자 후기</span>
+                </div>
+              </div>
+              <div class="review-rating-box">
+                <span class="review-stars">★★★★★</span>
+                <span class="review-score-num">5.0</span>
+              </div>
+            </div>
+            <p class="review-body">
+              커스텀 셰이더 들어간 D3D11 소규모 게임 엔진 제작 의뢰했는데 기대 이상이네요!! 프레임 방어도 완벽하고 기술적인 설명까지 친절하게 해주셔서 믿음이 갑니다!
+            </p>
+            <div class="review-purchase-footer">
+              <span class="purchase-item-name">D3D11로 엔진 제작</span>
+              <span class="purchase-price-tag">구매가 180만원</span>
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -1506,7 +2024,7 @@
       <div class="container">
         <div class="section-header-row reveal">
           <div>
-            <span class="section-label">01 / VERIFIED PORTFOLIO ARCHIVE (10 WORKS)</span>
+            <span class="section-label">01 / VERIFIED PORTFOLIO ARCHIVE</span>
             <h2 class="section-title">언리얼 엔진 5 환경 &amp; 블렌더 정밀 모델링</h2>
             <p class="section-desc">
               모든 환경 샷은 <strong>언리얼 엔진 5</strong>에서 직접 구성·렌더링했으며, 항공기·특수차량·동물·프롭 모델링은 <strong>블렌더(Blender)</strong>로 직접 제작했습니다. 모든 이미지는 클릭 시 고해상도로 확대됩니다.
@@ -1515,9 +2033,9 @@
 
           <!-- 카테고리 필터 버튼 -->
           <div class="filter-tabs" role="tablist" aria-label="작업물 카테고리 필터">
-            <button type="button" class="filter-btn active" data-filter="all">전체 보기 (10)</button>
-            <button type="button" class="filter-btn" data-filter="ue5">언리얼 엔진 5 환경·기후 (5)</button>
-            <button type="button" class="filter-btn" data-filter="blender">블렌더 모델링·토폴로지 (5)</button>
+            <button type="button" class="filter-btn active" data-filter="all">전체 보기</button>
+            <button type="button" class="filter-btn" data-filter="ue5">언리얼 엔진 5 환경·기후</button>
+            <button type="button" class="filter-btn" data-filter="blender">블렌더 모델링·토폴로지</button>
           </div>
         </div>
 
@@ -1526,7 +2044,7 @@
           <div class="topology-header">
             <div class="topology-title-wrap">
               <span class="section-label">INTERACTIVE TOPOLOGY &amp; PBR INSPECTOR</span>
-              <h3>F/A-18F 슈퍼 호넷 — PBR 텍스처 렌더링 &amp; 정밀 와이어프레임 검증</h3>
+              <h3>F/A-18F 슈퍼 호넷 — PBR 텍스처 렌더링 &amp; 정밀 와이어프레임</h3>
               <p>우측 탭을 눌러 텍스처 렌더링과 측면·조종석(콕핏)·상단 항공샷 폴리곤 와이어프레임 설계를 직접 비교해 보세요.</p>
             </div>
             <div class="topology-tabs">
@@ -2023,7 +2541,7 @@
           <div class="pricing-row reveal" data-select-service="블렌더 모델링 (1 ~ 55만원)" style="--delay: 0.15s;">
             <div>
               <div class="pricing-name">모델링 (블렌더 3D)</div>
-              <div class="pricing-scope">정밀 하드서피스(항공기/차량/무기), 프롭/오브젝트, 깔끔한 토폴로지 &amp; PBR/URP 대응 에셋</div>
+              <div class="pricing-scope">하드서피스(항공기/차량/무기), 프롭/오브젝트, 깔끔한 토폴로지 &amp; PBR/URP 대응 에셋</div>
             </div>
             <div class="pricing-right">
               <div class="pricing-value">1 ~ 55만원</div>
@@ -2103,7 +2621,7 @@
       <div class="container">
         <div class="contact-card reveal">
           <p class="section-label" style="margin-bottom: 14px;">05 / DIRECT CONTACT</p>
-          <h2 class="contact-title">모두 제작 가능 · 제작문의는 DM 💬</h2>
+          <h2 class="contact-title">상상을 현실로 · 제작문의는 DM 💬</h2>
           <p class="contact-sub">
             C#, C++, D3D11 개발, 3D 엔진 제작, 언리얼 엔진 5, 블렌더 모델링, Lua 등등<br />
             아래 버튼을 클릭하면 디스코드 아이디(<strong>.cute06</strong>)가 클립보드에 즉시 복사됩니다.
@@ -2121,7 +2639,7 @@
     <div class="container footer-inner">
       <div>© 2026 .cute06. All rights reserved.</div>
       <div class="footer-links">
-        <a href="#works">포트폴리오 (10)</a>
+        <a href="#works">포트폴리오</a>
         <a href="#specs">커리어 &amp; 스펙</a>
         <a href="#pricing">제작 단가</a>
         <a href="#contact">디스코드: .cute06</a>
@@ -2151,6 +2669,117 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
+    // 0. 구매 후기 마키 무한 루프 + 마우스/터치 드래그 이동 시스템
+    const reviewsViewport = document.getElementById("reviewsViewport");
+    const reviewsTrack = document.getElementById("reviewsTrack");
+    if (reviewsViewport && reviewsTrack) {
+      const originalCards = Array.from(reviewsTrack.children);
+      originalCards.forEach((card) => {
+        const clone = card.cloneNode(true);
+        clone.setAttribute("aria-hidden", "true");
+        reviewsTrack.appendChild(clone);
+      });
+
+      let offsetX = 0;
+      let isDraggingReviews = false;
+      let isHoveringReviews = false;
+      let dragStartX = 0;
+      let dragStartOffset = 0;
+      let velocityX = 0;
+      let lastPointerX = 0;
+      const autoSpeed = 0.65; // 우측 -> 좌측 기본 자동 이동 속도
+
+      function wrapOffset() {
+        // 원본 8개 세트의 전체 너비(절반) 기준으로 끊김 없이 무한 순환
+        const halfWidth = (reviewsTrack.scrollWidth + 22) / 2;
+        if (halfWidth <= 0) return;
+        while (offsetX <= -halfWidth) {
+          offsetX += halfWidth;
+        }
+        while (offsetX > 0) {
+          offsetX -= halfWidth;
+        }
+      }
+
+      function animateReviews() {
+        if (!isDraggingReviews) {
+          if (Math.abs(velocityX) > 0.08) {
+            offsetX += velocityX;
+            velocityX *= 0.92; // 드래그 후 부드러운 관성 감속
+          } else if (!isHoveringReviews) {
+            offsetX -= autoSpeed;
+          }
+          wrapOffset();
+        }
+        reviewsTrack.style.transform = `translate3d(${offsetX}px, 0, 0)`;
+        requestAnimationFrame(animateReviews);
+      }
+
+      reviewsViewport.addEventListener("mouseenter", () => {
+        isHoveringReviews = true;
+      });
+
+      reviewsViewport.addEventListener("mouseleave", () => {
+        isHoveringReviews = false;
+      });
+
+      reviewsViewport.addEventListener("mousedown", (e) => {
+        isDraggingReviews = true;
+        reviewsViewport.classList.add("is-dragging");
+        dragStartX = e.clientX;
+        lastPointerX = e.clientX;
+        dragStartOffset = offsetX;
+        velocityX = 0;
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isDraggingReviews) return;
+        const delta = e.clientX - dragStartX;
+        velocityX = e.clientX - lastPointerX;
+        lastPointerX = e.clientX;
+        offsetX = dragStartOffset + delta;
+        wrapOffset();
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (!isDraggingReviews) return;
+        isDraggingReviews = false;
+        reviewsViewport.classList.remove("is-dragging");
+      });
+
+      reviewsViewport.addEventListener(
+        "touchstart",
+        (e) => {
+          if (e.touches.length !== 1) return;
+          isDraggingReviews = true;
+          dragStartX = e.touches[0].clientX;
+          lastPointerX = e.touches[0].clientX;
+          dragStartOffset = offsetX;
+          velocityX = 0;
+        },
+        { passive: true }
+      );
+
+      window.addEventListener(
+        "touchmove",
+        (e) => {
+          if (!isDraggingReviews || e.touches.length !== 1) return;
+          const delta = e.touches[0].clientX - dragStartX;
+          velocityX = e.touches[0].clientX - lastPointerX;
+          lastPointerX = e.touches[0].clientX;
+          offsetX = dragStartOffset + delta;
+          wrapOffset();
+        },
+        { passive: true }
+      );
+
+      window.addEventListener("touchend", () => {
+        isDraggingReviews = false;
+      });
+
+      requestAnimationFrame(animateReviews);
+    }
+
     // 1. 스크롤 등장 애니메이션 (IntersectionObserver)
     const revealEls = document.querySelectorAll(".reveal");
     const revealObserver = new IntersectionObserver(
@@ -2348,14 +2977,13 @@
       const detail =
         detailInput && detailInput.value.trim()
           ? detailInput.value.trim()
-          : "포트폴리오 사이트를 보고 연락드립니다. 제작 상담 희망합니다!";
+          : "사이트를 보고 연락드립니다. 제작 상담 희망합니다!";
 
       quotePreviewText.textContent = [
-        "안녕하세요! 포트폴리오 웹사이트를 보고 제작 문의드립니다 💬",
+        "안녕하세요! 웹사이트를 보고 제작 문의드립니다 💬",
         `• 희망 분야 : ${service}`,
         `• 예산/일정 : ${budget}`,
         `• 상세 내용 : ${detail}`,
-        "• 디스코드 ID : .cute06"
       ].join("\n");
     }
 
